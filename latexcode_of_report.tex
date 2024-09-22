@@ -1,14 +1,14 @@
 \documentclass{article}
-\usepackage{ctex} % Support for Chinese
-\usepackage{amsmath, amssymb} % Support for mathematical symbols
+\usepackage{ctex} % 支持中文
+\usepackage{amsmath, amssymb} % 支持数学符号
 \usepackage{geometry}
-\usepackage{xcolor} % Support for colors
-\usepackage{listings} % Support for code highlighting
+\usepackage{xcolor} % 支持颜色
+\usepackage{listings} % 支持代码高亮
 
-% Set page size
+% 设置页面尺寸
 \geometry{a4paper, margin=1in}
 
-% Code highlighting settings
+% 代码高亮设置
 \lstset{
     language=Python,
     basicstyle=\ttfamily\footnotesize,
@@ -31,8 +31,8 @@
 
 \begin{document}
 
-% Cover page
-\title{Hamiltonian Graphs}
+% 封面页
+\title{哈密顿问题}
 \author{}
 \date{}
 \maketitle
@@ -40,30 +40,36 @@
 \thispagestyle{empty}
 \newpage
 
-% Main content
-\section*{The Traveling Salesman Problem}
-
-In 1859, mathematician William Rowan Hamilton proposed the Traveling Salesman Problem, likening each vertex of a dodecahedron to a city and representing the edges as routes between cities. The question posed was: can one start from a city, traverse each route exactly once, and return to the starting point?
-
-\section*{Hamiltonian Graphs}
+% 正文内容
+\section*{周游世界问题}
 
 \begin{itemize}
-  \item \textcolor{teal}{Hamiltonian Path}: A path that visits every vertex in a graph exactly once.
-  \item \textcolor{teal}{Hamiltonian Cycle}: A cycle that visits every vertex in a graph exactly once.
-  \item \textcolor{teal}{Hamiltonian Graph}: A graph that contains a Hamiltonian cycle.
+  \item 1859年，数学家哈密顿将正十二面体的每个顶点比作一个城市，连接两个顶点之间的边看作城市之间的交通线，提出周游世界问题：能否从某个城市出发沿交通线经过每个城市一次并且仅一次，最后回到出发点？
 \end{itemize}
 
-\section*{1. Necessary Conditions}
 
-\textbf{Theorem 1}: If \( G \) is a Hamiltonian graph, then for any non-empty proper subset \( S \subset V(G) \), it holds that \( \omega(G - S) \leq |S| \), where \( G - S \) denotes the graph obtained by removing the vertices in \( S \) from \( G \), and \( \omega(G - S) \) is the number of connected components in \( G - S \).
 
-\textbf{Proof}: Let \( C \) be a Hamiltonian cycle of \( G \). For every vertex removed from \( S \), at most one additional connected component can be formed. Thus, when removing the first vertex from \( S \), the number of components remains unchanged, giving us \( \omega(C - S) \leq |S| \). Since \( C \) is a subgraph of \( G \), it follows that \( C - S \) is a spanning subgraph of \( G - S \), leading to \( \omega(G - S) \leq \omega(C - S) \). Therefore, \( \omega(G - S) \leq |S| \).
+\section*{哈密顿图}
 
-This is not a sufficient condition; a counterexample is the Petersen graph. The following code performs a brute-force search to verify that the Petersen graph is not Hamiltonian.
+\begin{itemize}
+  \item \textcolor{teal}{哈密顿通路}: 经过图中所有顶点的初级通路
+  \item \textcolor{teal}{哈密顿回路}: 经过图中所有顶点的初级回路
+  \item \textcolor{teal}{哈密顿图}: 有哈密顿回路的图
+\end{itemize}
+
+
+
+\section*{1. 必要条件}
+
+\textbf{定理 ①}: 若 $G$ 是哈密顿图，则对于结点集 $V(G)$ 的任一非空真子集 $S \subset V(G)$ 有 $\omega(G - S) \leq |S|$。其中 $G - S$ 表示在 $G$ 中删去 $S$ 中的结点后所构成的图，$\omega(G - S)$ 表示 $G - S$ 的连通分支数。
+
+\textbf{证明}: 设 $C$ 是 $G$ 的一条哈密顿回路，$C'$ 视为 $G$ 的子图，在回路 $C$ 中，每删去 $S$ 中的一个结点，最多增加一个连通分支，且删去 $S$ 中的第一个结点时分支数不变，所以有 $\omega(C - S) \leq |S|$。又因为 $C$ 是 $G$ 的生成子图，所以 $C - S$ 是 $G - S$ 的生成子图，且 $\omega(G - S) \leq \omega(C - S)$，因此 $\omega(G - S) \leq |S|$。
+
+这不是充分条件，反例是彼得松图，这段代码通过暴力搜索验证了彼得松图不是哈密顿图。
 
 \newpage
 
-\section*{Python Code Verification}
+\section*{Python 代码验证}
 
 \begin{lstlisting}
 import networkx as nx
@@ -71,14 +77,16 @@ from itertools import permutations
 
 def is_hamiltonian_cycle(graph, cycle):
     """
-    Checks if the given vertex permutation forms a Hamiltonian cycle.
-    :param graph: The graph to check
-    :param cycle: The vertex permutation
-    :return: True if it is a Hamiltonian cycle, otherwise False
+    检查给定的顶点排列是否构成哈密顿环
+    :param graph: 待检查的图
+    :param cycle: 顶点的排列
+    :return: 如果是哈密顿环返回True，否则返回False
     """
+    # 检查排列长度是否与顶点数相同
     if len(cycle) != len(graph.nodes):
         return False
     
+    # 检查排列中的每对相邻顶点是否有边连接
     for i in range(len(cycle)):
         if not graph.has_edge(cycle[i], cycle[(i + 1) % len(cycle)]):
             return False
@@ -86,19 +94,20 @@ def is_hamiltonian_cycle(graph, cycle):
     return True
 
 def main():
-    # Generate the Petersen graph
+    # 生成彼得森图
     G = nx.petersen_graph()
     
-    # Get all vertices of the Petersen graph
+    # 获取彼得森图的所有顶点
     nodes = list(G.nodes)
     
-    # Check all permutations of vertices to find a Hamiltonian cycle
+    # 尝试所有顶点排列，检查是否有哈密顿环
     for perm in permutations(nodes):
         if is_hamiltonian_cycle(G, perm):
-            print("Petersen graph has a Hamiltonian cycle:", perm)
+            print("彼得森图有哈密顿环：", perm)
             return
     
-    print("Petersen graph does not have a Hamiltonian cycle")
+    # 如果循环结束没有找到哈密顿环，输出彼得森图没有哈密顿环
+    print("彼得森图没有哈密顿环")
 
 if __name__ == "__main__":
     main()
@@ -106,42 +115,381 @@ if __name__ == "__main__":
 
 \newpage
 
-\section*{2. Simple Sufficient Conditions}
+\section*{2.简单的充分条件}
 
-Let \( G \) be a simple graph with \( n \) vertices (where \( n \geqslant 3 \)). If for every pair of vertices \( v \) and \( v' \) it holds that
+设 $G$ 是 $n(n \geqslant 3)$ 阶简单图，且对每一对顶点 $v, v^{\prime}$ 有
 
-\[ d(v) + d(v') \geqslant n - 1, \]
+\[ d(v) + d\left(v^{\prime}\right) \geqslant n - 1, \]
 
-then \( G \) has a Hamiltonian path.
+则图 $G$ 有哈密顿链。
 
-\textbf{Proof}: First, we show that \( G \) is connected. If \( G \) has two or more components, let one component have \( n_1 \) vertices and another \( n_2 \) vertices. Choosing one vertex \( v_1 \) from the first component and \( v_2 \) from the second gives:
+\textbf{证明} 先证明 $G$ 是连通图。若 $G$ 有两个或两个以上的连通部分，设其中之一有 $n_{1}$ 个顶点，另一部分有 $n_{2}$ 个顶点。分别从中各取一顶点 $v_{1}$ 、 $v_{2}$ ，则 $d\left(v_{1}\right) \leqslant n_{1} - 1, d\left(v_{2}\right) \leqslant n_{2} - 1$ 。故
 
-\[ d(v_1) \leq n_1 - 1, \quad d(v_2) \leq n_2 - 1. \]
+\[ d\left(v_{1}\right) + d\left(v_{2}\right) \leqslant n_{1} + n_{2} - 2 < n - 1, \]
 
-Thus,
+这与题设矛盾，所以 $G$ 是连通图。
 
-\[ d(v_1) + d(v_2) \leq n_1 + n_2 - 2 < n - 1, \]
+现证明存在哈密顿链。证明的方法实际上给出一种哈密顿链的构造步骤。设在 $G$ 中有一条从 $v_{1}$ 到 $v_{p}$ 的链: $v_{1} v_{2} \cdots v_{p}$ 。如果有 $v_{1}$ 或 $v_{p}$ 与不在这条链上的一个顶点相邻，我们可扩展这条链，使它包含这个顶点。否则， $v_{1}$ 和 $v_{p}$ 都只与这条链上的顶点相邻，这时存在一个圈包含顶点 $v_{1}, v_{2}, \cdots, v_{p}$ 。假设与 $v_{1}$ 点相邻的顶点集是 $\left\{ v_{j_{1}}, v_{j_{2}}, \cdots, v_{j_{k}} \right\}$ ，这里 $v_{j_{1}}, v_{j_{2}}, \cdots, v_{j_{k}}$ 都是链 $v_{1} v_{2} \cdots v_{p}$ 中的点，且 $p < n$ 。
 
-which contradicts the premise. Therefore, \( G \) is connected.
+如果 $v_{1}$ 与 $v_{p}$ 相邻，则显然存在一个圈 $v_{1} v_{2} \cdots v_{p} v_{1}$ 。
 
-Now, we show the existence of a Hamiltonian path. Assume there is a path \( v_1 v_2 \cdots v_p \) in \( G \). If either \( v_1 \) or \( v_p \) is adjacent to a vertex not on the path, we can extend the path to include this vertex. If both \( v_1 \) and \( v_p \) are only adjacent to vertices on the path, we can find a cycle that includes \( v_1, v_2, \ldots, v_p \).
+如果 $v_{1}$ 和 $v_{p}$ 不相邻，则必然存在一点 $v_{l} (2 \leqslant l \leqslant p)$ 和 $v_{1}$ 相邻，而 $v_{l-1}$ 和 $v_{p}$ 相邻 。因为否则 $v_{p}$ 最多只和 $p - k - 1$ 个顶点相邻，即排除 $v_{j_{1}-1}$ 、 $v_{j_{2}-1}$ 、 $\cdots$ 、 $v_{j_{k}-1}$ 和 $v_{p}$ 自身，这样
 
-Assuming \( v_1 \) is adjacent to vertices \( \{ v_{j_1}, v_{j_2}, \ldots, v_{j_k} \} \) on the path with \( p < n \). If \( v_1 \) and \( v_p \) are adjacent, we have a cycle \( v_1 v_2 \cdots v_p v_1 \). If they are not, there must be a vertex \( v_l \) (with \( 2 \leq l \leq p \)) adjacent to \( v_1 \), and \( v_{l-1} \) adjacent to \( v_p \). 
+\[ d\left(v_{1}\right) + d\left(v_{p}\right) \leqslant k + (p - k - 1) = p - 1 < n - 1, \]
 
-This leads us to \( d(v_1) + d(v_p) \leq k + (p - k - 1) = p - 1 < n - 1 \), which is a contradiction. Hence, a cycle \( v_1 v_l v_{l+1} \cdots v_p v_{l-1} v_{l-2} \cdots v_2 v_1 \) exists. If \( p = n \), we already have a Hamiltonian cycle. If \( p < n \), we can repeat this process until a Hamiltonian path is obtained.
+这与假设矛盾。因而存在 $v_{1}, v_{2}, \cdots, v_{p}$ 的圈 $v_{1} v_{l} v_{l+1} \cdots v_{p} v_{l-1} v_{l-2} \cdots v_{2} v_{1}$ 。
+若 $p = n$，实际上已经存在一个哈密顿圈。若 $p < n$，由于 $G$ 是连通的，所以必定存在一个不属于此圈的顶点 $v'$ 与 $v_1 v_2 \cdots v_p$ 中的某个相邻。不断重复以上步骤直到得到一条n-1的链为止.
 
-(Ore) If \( G \) is a simple graph with \( n \) vertices (where \( n \geqslant 3 \)) and for every pair of non-adjacent vertices \( v \) and \( v' \) it holds that
-
+(Ore)设 $G$ 是 $n(n \geqslant 3)$ 阶简单图，且对每一对不相邻的顶点 $v, v'$ 有
 \[ d(v) + d(v') \geqslant n, \]
+那么图 $G$ 有哈密顿圈。
 
-then \( G \) has a Hamiltonian cycle.
+证明：当 $n = 3$ 时，由所给条件知 $G$ 一定是完全图 $K_3$，命题成立。设 $n \geqslant 4$，用反证法证明。设 $G$ 是有 $n$ 个顶点且满足度数条件却没有哈密顿圈的图。不妨设 $G$ 是具有这种性质的边数最大的图，也就是说 $G$ 添上一条边就具有哈密顿圈（否则 $G$ 可以添加一些边，直到不能再添为止，加边后顶点的度数条件仍满足），由此得出在图 $G$ 中有一条包含图中每一个顶点的哈密顿链，记为 $v_1 v_2 \cdots v_n$。则 $v_1$ 与 $v_n$ 不相邻，于是
+在 $v_2, v_3, \cdots, v_{n-1}$ 中必有一点 $v_i$ 使 $v_1$ 与 $v_i$ 相邻，$v_n$ 与 $v_{i-1}$ 相邻，如图所示。否则，有 $d(v_1) = k$ 个点 $v_{i_1}, v_{i_2}, \cdots, v_{i_k} \left(2 \leqslant i_1 \leqslant i_2 \leqslant \cdots \leqslant i_k \leqslant n-1\right)$ 与 $v_1$ 相邻，而 $v_n$ 与 $v_{i_1-1}, v_{i_2-1}, \cdots, v_{i_k-1}$ 都不相邻，从而
+\[ d(v_n) \leqslant n-1-k, \]
+则
+\[ d(v_1) + d(v_n) \leqslant k + n - 1 - k = n - 1 < n, \]
+这与条件矛盾。故 $G$ 存在一条哈密顿圈 $v_1 v_2 \cdots v_{i-1} v_n v_{n-1} \cdots v_i v_1$。这又与假设矛盾，从而命题得证。
 
-\textbf{Proof}: For \( n = 3 \), \( G \) must be the complete graph \( K_3 \). If \( n \geqslant 4 \), we use proof by contradiction. Assume \( G \) is a graph with \( n \) vertices that satisfies the degree condition but does not have a Hamiltonian cycle. Let \( G \) be the graph with the maximum number of edges without a Hamiltonian cycle.
+\section{Python验证代码}
+\begin{lstlisting}
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jun 11 21:06:35 2024
 
-Adding an edge to \( G \) would result in a Hamiltonian cycle; otherwise, we could keep adding edges until no further additions are possible, while still maintaining the degree condition. Thus, there exists a Hamiltonian path \( v_1 v_2 \cdots v_n \). Since \( v_1 \) and \( v_n \) are not adjacent, there exists a vertex \( v_i \) (where \( 2 \leq i \leq n-1 \)) such that \( v_1 \) is adjacent to \( v_i \) and \( v_n \) is adjacent to \( v_{i-1} \).
+@author: 蔚元利
+"""
 
-This leads to:
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 
-\[ d(v_1) + d(v_n) \leq k + n - 1 - k = n - 1 < n, \]
+def generate_ore_graph(n):
+    """
+    生成一个满足Ore性质的随机图
+    """
+    G = nx.Graph()
+    G.add_nodes_from(range(n))
+    
+    # 随机生成边，确保满足Ore性质
+    for u in range(n):
+        for v in range(u + 1, n):
+            if np.random.rand() < 0.5:
+                G.add_edge(u, v)
+    
+    # 强制确保满足Ore性质
+    for u in range(n):
+        for v in range(u + 1, n):
+            if not G.has_edge(u, v):
+                if G.degree[u] + G.degree[v] >= n:
+                    G.add_edge(u, v)
+    
+    return G
 
-which contradicts the condition. Thus, \( G \) must have a Hamiltonian cycle \( v_1 v_2 \cdots v_{i-1} v_n v_{n-1} \cdots
+def find_hamiltonian_cycle(graph, n):
+    def extend_path(path):
+        while True:
+            extended = False
+            for v in range(n):
+                if v not in path and graph.has_edge(path[-1], v):
+                    path.append(v)
+                    extended = True
+                    break
+            if not extended:
+                break
+        return path
+
+    def find_cycle_from_path(path):
+        y1, ym = path[0], path[-1]
+        
+        # 检查 y1 和 ym 是否相邻
+        if graph.has_edge(y1, ym):
+            if len(path) == n:
+                return path
+            else:
+                return None
+        
+        # 找到一个不在 path 中的顶点 z，使得 z 与 y1 相邻
+        z_candidates = [z for z in range(n) if z not in path and graph.has_edge(z, y1)]
+        if z_candidates:
+            z = z_candidates[0]
+            path = [z] + path
+            path = extend_path(path)
+        else:
+            # 找到一个顶点 yk，使得 y1 和 yk 邻接，并且 ym 和 yk-1 邻接
+            for k in range(1, len(path)):
+                if graph.has_edge(y1, path[k]) and graph.has_edge(ym, path[k - 1]):
+                    path = path[:k] + [ym] + path[k:]
+                    path = extend_path([y1] + path)
+                    break
+            else:
+                return None
+        
+        return find_cycle_from_path(path)
+    
+    path = extend_path([0])
+    cycle = find_cycle_from_path(path)
+    
+    return cycle
+
+def main():
+    # 用户输入图的顶点数
+    n = int(input("请输入顶点数（n > 3）："))
+    if n <= 3:
+        print("顶点数必须大于3")
+        return
+    
+    # 生成满足Ore性质的随机图
+    while True:
+        graph = generate_ore_graph(n)
+        if all(graph.degree[u] + graph.degree[v] >= n for u in range(n) for v in range(u + 1, n) if not graph.has_edge(u, v)):
+            break
+    
+    # 查找哈密顿链
+    cycle = find_hamiltonian_cycle(graph, n)
+    
+    if cycle:
+        print("找到哈密顿链：", cycle)
+    else:
+        print("未找到哈密顿链")
+    
+    # 绘制图形
+    pos = nx.spring_layout(graph)
+    nx.draw(graph, pos, with_labels=True, node_color='lightblue', edge_color='gray')
+    if cycle:
+        edges = [(cycle[i], cycle[(i+1)%n]) for i in range(len(cycle))]
+        nx.draw_networkx_edges(graph, pos, edgelist=edges, edge_color='r', width=2)
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+\section*{3. 对于平面图的必要条件}
+如果一个平面图有哈密顿圈 $c$, 用 $f_i^{\prime}$ 表示在 $c$ 的内部的 $i$ 边形的个数, 用 $f_i^{\prime \prime}$ 表示在 $c$ 的外部的 $i$ 边形的个数, 则
+(1) $1 \cdot f_3^{\prime}+2 \cdot f_4^{\prime}+3 \cdot f_5^{\prime}+\cdots=n-2$;
+(2) $1 \cdot f_3^{\prime \prime}+2 \cdot f_4^{\prime \prime}+3 \cdot f_5^{\prime \prime}+\cdots=n-2$;
+(3) $1 \cdot\left(f_3^{\prime}-f_3^{\prime \prime}\right)+2 \cdot\left(f_4^{\prime}-f_4^{\prime \prime}\right)+3 \cdot\left(f_5^{\prime}-f_5^{\prime \prime}\right)+\cdots=0$.
+
+其中 $n$ 为 $G$ 的顶点数, 显然也是 $c$ 的长.
+证明 设 $c$ 的内部有 $d$ 条边. 由于 $G$ 是平面图, 它的边都不相交, 所以一条边把它经过的面分成两部分. 设想这些边是一条一条地放进图里去的, 每面. 于是 $c$ 的内部的面的总数为
+$$
+f_2^{\prime}+f_3^{\prime}+f_4^{\prime}+f_5^{\prime}+\cdots=d+1 .
+$$
+
+在 $c$ 内每个 $i$ 边形中记上数字 $i$, 各面所记数字之和就是围成这些面的边的总数, $c$ 内部的每一条边都被数了两次, 而 $c$ 上的 $n$ 条边, 每条边都只数了一次,于是
+$$
+2 f_2^{\prime}+3 f_3^{\prime}+4 f_4^{\prime}+5 f_5^{\prime}+\cdots=2 d+n .
+$$
+(2)式减去(1)式的两倍, 得
+$$
+1 \cdot f_3^{\prime}+2 \cdot f_4^{\prime}+3 \cdot f_5^{\prime}+\cdots=n-2 .
+$$
+
+类似地可以推得
+$$
+1 \cdot f_3^{\prime \prime}+2 \cdot f_4^{\prime \prime}+3 \cdot f_5^{\prime \prime}+\cdots=n-2 .
+$$
+(3)、(4)两式相减即得
+\[ 1 \cdot \left( f_3' - f_3'' \right) + 2 \cdot \left( f_4' - f_4'' \right) + 3 \cdot \left( f_5' - f_5'' \right) + \cdots = 0 \]
+\section{Python验证代码}
+\begin{lstlisting}
+import networkx as nx
+import matplotlib.pyplot as plt
+from itertools import permutations
+
+def generate_random_planar_graph(num_nodes):
+    """
+    生成一个随机平面图
+    :param num_nodes: 节点数
+    :return: 平面图
+    """
+    G = nx.erdos_renyi_graph(num_nodes, 0.4)
+    while not nx.check_planarity(G)[0]:
+        G = nx.erdos_renyi_graph(num_nodes, 0.4)
+    pos = nx.planar_layout(G)
+    return G, pos
+
+def is_hamiltonian_cycle(graph, cycle):
+    """
+    检查给定的顶点排列是否构成哈密顿环
+    :param graph: 待检查的图
+    :param cycle: 顶点的排列
+    :return: 如果是哈密顿环返回True，否则返回False
+    """
+    if len(cycle) != len(graph.nodes):
+        return False
+
+    for i in range(len(cycle)):
+        if not graph.has_edge(cycle[i], cycle[(i + 1) % len(cycle)]):
+            return False
+
+    return True
+
+def find_hamiltonian_cycle(graph):
+    """
+    尝试找到图中的哈密顿环
+    :param graph: 待检查的图
+    :return: 如果找到哈密顿环，返回环中的节点顺序，否则返回None
+    """
+    nodes = list(graph.nodes)
+    for perm in permutations(nodes):
+        if is_hamiltonian_cycle(graph, perm):
+            return perm
+    return None
+
+def verify_hamiltonian_theorem(graph, cycle):
+    """
+    根据定理验证一个平面图是否是哈密顿图
+    :param graph: 待检查的图
+    :param cycle: 哈密顿环
+    :return: True如果满足定理条件, 否则False
+    """
+    if not cycle:
+        return False
+
+    n = len(graph.nodes)
+    f_prime = [0] * (n + 1)
+    f_double_prime = [0] * (n + 1)
+
+    # 获取所有的面
+    faces = nx.cycle_basis(graph)
+    internal_faces = []
+    external_faces = []
+
+    # 根据哈密顿环将面分为内部和外部
+    for face in faces:
+        if all(node in cycle for node in face):
+            internal_faces.append(face)
+        else:
+            external_faces.append(face)
+
+    for face in internal_faces:
+        f_prime[len(face)] += 1
+
+    for face in external_faces:
+        f_double_prime[len(face)] += 1
+
+    # 计算内部和外部的定理值
+    sum_internal = sum(i * f_prime[i] for i in range(3, n + 1))
+    sum_external = sum(i * f_double_prime[i] for i in range(3, n + 1))
+
+    return sum_internal == n - 2 and sum_external == n - 2
+
+def main():
+    num_nodes = int(input("请输入平面图的节点数: "))
+    G, pos = generate_random_planar_graph(num_nodes)
+
+    # 找到哈密顿环
+    cycle = find_hamiltonian_cycle(G)
+
+    if cycle:
+        print("找到哈密顿环:", cycle)
+        # 验证定理
+        if verify_hamiltonian_theorem(G, cycle):
+            print("根据定理，该图是哈密顿图")
+        else:
+            print("根据定理，该图不是哈密顿图")
+    else:
+        print("没有找到哈密顿环，该图不是哈密顿图")
+
+    # 绘制图
+    nx.draw(G, pos, with_labels=True)
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+\section*{4.邦迪定理和邦迪-萨瓦达定理}
+\textbf{Bondy's Theorem (1972)}
+
+设 \( G \) 为 \( n \) 阶简单无向图，且 \( n \geq 3 \)，则图 \( G \) 是Hamilton图当且仅当图 \( G \) 的闭包 \(\mathrm{Cl}(G)\) 是Hamilton图.
+
+\textbf{闭包}: 图 \( G \) 的闭包 \(\mathrm{Cl}(G)\) 是指由下述方法得到的一个图，即反复连接 \( G \) 中度数之和 \(\geq n\) 的不相邻的两顶点，直到没有这样的顶点对存在为止.
+
+\textbf{Proof}:
+
+\textbf{引理}: 图 \( G \) 的闭包 \(\mathrm{Cl}(G)\) 是唯一确定的.
+
+\textbf{证明}: 假设 \( G \) 有两个闭包 \( G_{1} \) 和 \( G_{2} \)，设 \(\{e_{i}\}_{i=1}^{m}\) 是经由上述操作所添加的边， \(\{f_{i}\}_{i=1}^{k}\) 是 \( G_{2} \) 所添加的边。令 \( H = G + \{e_{i}\}_{i=1}^{m}\)，不妨设 \( e_{k+1} = uv \) 是 \(\{e_{i}\}\) 中第一条不属于 \( G_{2} \) 的边，则 \( H \subseteq G_{2} \)，故
+\[ 
+d_{G_{2}}(u) + d_{G_{2}}(v) \geq n 
+\]
+由 \( G_{1} \) 的定义可得
+\[ 
+d_{H}(u) + d_{H}(v) \geq n 
+\]
+矛盾!
+
+因此每条 \( e_{i} \) 都是 \( G_{2} \) 的边，同理可得每条 \( f_{i} \) 都是 \( G_{1} \) 的边，故 \( G_{1} = G_{2} \)，即 \( G \) 的闭包 \(\mathrm{Cl}(G)\) 是唯一确定的.
+
+下面证明 \( G \) 是Hamilton图。在构作闭包的过程中，每添加一条边都用一次Ore定理即可 。证毕。
+
+
+
+
+\textbf{推论}: 若 \( \mathrm{Cl}(G) \cong K_{n} \) （\( n \geq 3 \)），则 \( G \) 是Hamilton图。
+
+显然 \( K_{n} \) 是Hamilton图，它的最外圈 \( C_{n} \) 即为其Hamilton回路，故由Bondy定理得证。
+
+\textbf{Bondy-Chvátal Theorem (1976)}
+
+设 \( G \) 为 \( n \) 阶简单无向图，且 \( n \geq 3 \)。设 \( G \) 的度序列为 \( \left\{d_{i}\right\}_{i=1}^{n}, n \geq 3 \)，且 \( d_{1} \leq d_{2} \leq \cdots \leq d_{n} \)。若不存在 \( m \leq\left\lfloor\frac{n}{2}\right\rfloor \) ，使得 \( d_{m} \leq m \wedge d_{n-m} \leq n-m \)，则 \( G \) 是Hamilton图。
+
+\textbf{Proof}:
+
+我们先来证明 \( \mathrm{Cl}(G) \cong K_{n} \)。
+
+假设 \( \mathrm{Cl}(G) \nsubseteq K_{n} \)，设 \( u, v \) 是 \( \mathrm{Cl}(G) \) 中两个不相邻的顶点，有
+
+\[ d_{\mathrm{Cl}}(u) \leq d_{\mathrm{Cl}}(v) \]
+
+且 \( d_{\mathrm{Cl}}(u)+d_{\mathrm{Cl}}(v) \) 充分大，并且有
+
+\[ \forall u, v \in \mathrm{Cl}(G) \wedge u v \notin \mathrm{Cl}(G) \text { s.t. } d_{\mathrm{Cl}}(u)+d_{\mathrm{Cl}}(v)<v \]
+
+记
+
+\[
+\begin{array}{l}
+S=\left\{v_{i} \mid v_{i} \in \mathrm{Cl}(G) \wedge v_{i} v \notin \mathrm{Cl}(G)\right\} \\
+T=\left\{v_{i} \mid v_{i} \in \mathrm{Cl}(G) \wedge v_{i} u \notin \mathrm{Cl}(G)\right\}
+\end{array}
+\]
+
+则有
+
+\[
+\begin{array}{l}
+|S|=n-1-d_{\mathrm{Cl}}(v) \\
+|T|=n-1-d_{\mathrm{Cl}}(u)
+\end{array}
+\]
+
+由于 \( \Delta(S) \leq d_{\mathrm{Cl}}(u), \Delta(T \cup\{u\}) \leq d_{\mathrm{Cl}}(v) \)，令 \( d_{\mathrm{Cl}}(u)=m \)，则 \( V(\mathrm{Cl}(G)) \geq m, \Delta(\mathrm{Cl}(G)) \leq m \) 且 \( \left|\left\{v_{i} \mid d_{\mathrm{Cl}}\left(v_{i}\right) \leq n-m\right\}\right| \geq n-m \)。因为 \( G \) 是 \( \mathrm{Cl}(G) \) 的生成子图，所以上述结论对 \( G \) 也成立，即
+\( d_{m} \leq m, d_{n-m} \leq n-m \)，又由 \( (1) \) \( (2) \) 可知 \( m<\frac{n}{2} \)，这与 \( \mathrm{Cl}(G) \nsubseteq K_{n} \) 矛盾！
+
+故 \( \mathrm{Cl}(G) \cong K_{n} \)。再由Bondy定理的推论可得 \( G \) 是Hamilton图。
+\section{5.posa定理}
+
+
+\textbf{Pósa's Theorem (1962)}
+
+设 \( G \) 为 \( n \) 阶简单无向图，且 \( n \geq 3 \)。定义 \( V_{k}:=\{v \in V: \operatorname{deg}(v) \leq k\} \)，若对于每一个 \( k \in \mathbb{Z}^{+} \) 满足 \( 1 \leq k < \frac{n-1}{2} \)， \( \left|V_{k}\right| < k \)，且当 \( n \) 为奇数时满足 \( k=\frac{n-1}{2}\)， \( \left|V_{k}\right| \leq k \) 则 \( G \) 是Hamilton图。
+
+\textbf{证明}
+
+我们首先来证明 \( \mathrm{Cl}(G) \cong K_{n} \)。假设 \( \mathrm{Cl}(G) \nsubseteq K_{n} \)，取 \( \mathrm{Cl}(G) \) 中不相邻的两顶点 \( u, v \) 使得 \( d_{\mathrm{Cl}}(u)+d_{\mathrm{Cl}}(v) \) 最大，则有 \( d_{\mathrm{Cl}}(u)+d_{\mathrm{Cl}}(v) \leq n-1 \)。我们不妨设 \( d_{\mathrm{Cl}}(u) \leq d_{\mathrm{Cl}}(v) \)，设 \( d_{\mathrm{Cl}}(u)=k \leq \frac{n-1}{2} \)，则有 \( d_{\mathrm{Cl}}(v) \leq n-k-1\)。设 \( S=\{x \in \mathrm{Cl}(G): x v \notin \mathrm{Cl}(G), x \neq v\}\)，所以 \( u \in S \)。若 \( w \in S \)，则 \( d_{\mathrm{Cl}}(x) \leq k\)，否则
+
+\[ d_{\mathrm{Cl}}(w)+d_{\mathrm{Cl}}(v) > d_{\mathrm{Cl}}(u)+d_{\mathrm{Cl}}(v) \]
+
+这与 \( u, v \) 的定义矛盾。因此 \( \Delta(S) \leq k, |S| \leq k-1 \)，则
+
+\[ d_{\mathrm{Cl}}(v) \geq (n-1)-(k-1) = n-k \]
+
+这就产生了矛盾。故 \( \mathrm{Cl}(G) \cong K_{n} \)。由Bondy定理可知 \( G \) 显然为 Hamilton图。
+
+\end{document}
+
+
+
+\end{document}
