@@ -1,0 +1,147 @@
+\documentclass{article}
+\usepackage{ctex} % Support for Chinese
+\usepackage{amsmath, amssymb} % Support for mathematical symbols
+\usepackage{geometry}
+\usepackage{xcolor} % Support for colors
+\usepackage{listings} % Support for code highlighting
+
+% Set page size
+\geometry{a4paper, margin=1in}
+
+% Code highlighting settings
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=5pt,
+    tabsize=4,
+    breaklines=true,
+    breakatwhitespace=false,
+    backgroundcolor=\color{lightgray!20},
+    frame=single,
+    captionpos=b,
+    keepspaces=true,
+}
+
+\begin{document}
+
+% Cover page
+\title{Hamiltonian Graphs}
+\author{}
+\date{}
+\maketitle
+
+\thispagestyle{empty}
+\newpage
+
+% Main content
+\section*{The Traveling Salesman Problem}
+
+In 1859, mathematician William Rowan Hamilton proposed the Traveling Salesman Problem, likening each vertex of a dodecahedron to a city and representing the edges as routes between cities. The question posed was: can one start from a city, traverse each route exactly once, and return to the starting point?
+
+\section*{Hamiltonian Graphs}
+
+\begin{itemize}
+  \item \textcolor{teal}{Hamiltonian Path}: A path that visits every vertex in a graph exactly once.
+  \item \textcolor{teal}{Hamiltonian Cycle}: A cycle that visits every vertex in a graph exactly once.
+  \item \textcolor{teal}{Hamiltonian Graph}: A graph that contains a Hamiltonian cycle.
+\end{itemize}
+
+\section*{1. Necessary Conditions}
+
+\textbf{Theorem 1}: If \( G \) is a Hamiltonian graph, then for any non-empty proper subset \( S \subset V(G) \), it holds that \( \omega(G - S) \leq |S| \), where \( G - S \) denotes the graph obtained by removing the vertices in \( S \) from \( G \), and \( \omega(G - S) \) is the number of connected components in \( G - S \).
+
+\textbf{Proof}: Let \( C \) be a Hamiltonian cycle of \( G \). For every vertex removed from \( S \), at most one additional connected component can be formed. Thus, when removing the first vertex from \( S \), the number of components remains unchanged, giving us \( \omega(C - S) \leq |S| \). Since \( C \) is a subgraph of \( G \), it follows that \( C - S \) is a spanning subgraph of \( G - S \), leading to \( \omega(G - S) \leq \omega(C - S) \). Therefore, \( \omega(G - S) \leq |S| \).
+
+This is not a sufficient condition; a counterexample is the Petersen graph. The following code performs a brute-force search to verify that the Petersen graph is not Hamiltonian.
+
+\newpage
+
+\section*{Python Code Verification}
+
+\begin{lstlisting}
+import networkx as nx
+from itertools import permutations
+
+def is_hamiltonian_cycle(graph, cycle):
+    """
+    Checks if the given vertex permutation forms a Hamiltonian cycle.
+    :param graph: The graph to check
+    :param cycle: The vertex permutation
+    :return: True if it is a Hamiltonian cycle, otherwise False
+    """
+    if len(cycle) != len(graph.nodes):
+        return False
+    
+    for i in range(len(cycle)):
+        if not graph.has_edge(cycle[i], cycle[(i + 1) % len(cycle)]):
+            return False
+    
+    return True
+
+def main():
+    # Generate the Petersen graph
+    G = nx.petersen_graph()
+    
+    # Get all vertices of the Petersen graph
+    nodes = list(G.nodes)
+    
+    # Check all permutations of vertices to find a Hamiltonian cycle
+    for perm in permutations(nodes):
+        if is_hamiltonian_cycle(G, perm):
+            print("Petersen graph has a Hamiltonian cycle:", perm)
+            return
+    
+    print("Petersen graph does not have a Hamiltonian cycle")
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\newpage
+
+\section*{2. Simple Sufficient Conditions}
+
+Let \( G \) be a simple graph with \( n \) vertices (where \( n \geqslant 3 \)). If for every pair of vertices \( v \) and \( v' \) it holds that
+
+\[ d(v) + d(v') \geqslant n - 1, \]
+
+then \( G \) has a Hamiltonian path.
+
+\textbf{Proof}: First, we show that \( G \) is connected. If \( G \) has two or more components, let one component have \( n_1 \) vertices and another \( n_2 \) vertices. Choosing one vertex \( v_1 \) from the first component and \( v_2 \) from the second gives:
+
+\[ d(v_1) \leq n_1 - 1, \quad d(v_2) \leq n_2 - 1. \]
+
+Thus,
+
+\[ d(v_1) + d(v_2) \leq n_1 + n_2 - 2 < n - 1, \]
+
+which contradicts the premise. Therefore, \( G \) is connected.
+
+Now, we show the existence of a Hamiltonian path. Assume there is a path \( v_1 v_2 \cdots v_p \) in \( G \). If either \( v_1 \) or \( v_p \) is adjacent to a vertex not on the path, we can extend the path to include this vertex. If both \( v_1 \) and \( v_p \) are only adjacent to vertices on the path, we can find a cycle that includes \( v_1, v_2, \ldots, v_p \).
+
+Assuming \( v_1 \) is adjacent to vertices \( \{ v_{j_1}, v_{j_2}, \ldots, v_{j_k} \} \) on the path with \( p < n \). If \( v_1 \) and \( v_p \) are adjacent, we have a cycle \( v_1 v_2 \cdots v_p v_1 \). If they are not, there must be a vertex \( v_l \) (with \( 2 \leq l \leq p \)) adjacent to \( v_1 \), and \( v_{l-1} \) adjacent to \( v_p \). 
+
+This leads us to \( d(v_1) + d(v_p) \leq k + (p - k - 1) = p - 1 < n - 1 \), which is a contradiction. Hence, a cycle \( v_1 v_l v_{l+1} \cdots v_p v_{l-1} v_{l-2} \cdots v_2 v_1 \) exists. If \( p = n \), we already have a Hamiltonian cycle. If \( p < n \), we can repeat this process until a Hamiltonian path is obtained.
+
+(Ore) If \( G \) is a simple graph with \( n \) vertices (where \( n \geqslant 3 \)) and for every pair of non-adjacent vertices \( v \) and \( v' \) it holds that
+
+\[ d(v) + d(v') \geqslant n, \]
+
+then \( G \) has a Hamiltonian cycle.
+
+\textbf{Proof}: For \( n = 3 \), \( G \) must be the complete graph \( K_3 \). If \( n \geqslant 4 \), we use proof by contradiction. Assume \( G \) is a graph with \( n \) vertices that satisfies the degree condition but does not have a Hamiltonian cycle. Let \( G \) be the graph with the maximum number of edges without a Hamiltonian cycle.
+
+Adding an edge to \( G \) would result in a Hamiltonian cycle; otherwise, we could keep adding edges until no further additions are possible, while still maintaining the degree condition. Thus, there exists a Hamiltonian path \( v_1 v_2 \cdots v_n \). Since \( v_1 \) and \( v_n \) are not adjacent, there exists a vertex \( v_i \) (where \( 2 \leq i \leq n-1 \)) such that \( v_1 \) is adjacent to \( v_i \) and \( v_n \) is adjacent to \( v_{i-1} \).
+
+This leads to:
+
+\[ d(v_1) + d(v_n) \leq k + n - 1 - k = n - 1 < n, \]
+
+which contradicts the condition. Thus, \( G \) must have a Hamiltonian cycle \( v_1 v_2 \cdots v_{i-1} v_n v_{n-1} \cdots
